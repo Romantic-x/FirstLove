@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>全国城市人口数据可视化分析</title>
+    <!-- 引入 ECharts 核心库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(145deg, #f5f7fc 0%, #eef2f7 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Microsoft YaHei', sans-serif;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1f2d3d;
+            font-weight: 600;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #5a6874;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #cdd9ed;
+            padding-bottom: 15px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.92);
+            border-radius: 24px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
+            backdrop-filter: blur(0px);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -14px rgba(0,0,0,0.2);
+        }
+        .chart-title {
+            background: #ffffffcc;
+            padding: 16px 24px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e466e;
+            border-left: 5px solid #3b82f6;
+            border-bottom: 1px solid #e4edf5;
+        }
+        .chart-box {
+            width: 100%;
+            height: 400px;
+            padding: 12px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 45px;
+            color: #6c7a89;
+            font-size: 0.85rem;
+            border-top: 1px solid #cbdde9;
+            padding-top: 25px;
+        }
+        @media (max-width: 640px) {
+            .grid { grid-template-columns: 1fr; }
+            .chart-box { height: 320px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🏙️ 全国重点城市人口与经济可视化分析</h1>
+    <div class="subtitle">数据来源：2023年各市统计公报 | 可视化引擎：ECharts</div>
+
+    <div class="grid">
+        <!-- 1. 柱状图：常住人口TOP10对比 -->
+        <div class="card">
+            <div class="chart-title">📊 城市常住人口对比（柱状图）</div>
+            <div id="bar-chart" class="chart-box"></div>
+        </div>
+
+        <!-- 2. 折线图：GDP vs 城镇化率趋势 -->
+        <div class="card">
+            <div class="chart-title">📈 GDP与城镇化率关系（折线图-双轴）</div>
+            <div id="line-chart" class="chart-box"></div>
+        </div>
+
+        <!-- 3. 饼图：各城市城区人口占比（环形图） -->
+        <div class="card">
+            <div class="chart-title">🥧 城区人口占比分布（环形图）</div>
+            <div id="pie-chart" class="chart-box"></div>
+        </div>
+
+        <!-- 4. 堆叠柱状图：常住人口 vs 城区人口 堆叠对比 -->
+        <div class="card">
+            <div class="chart-title">📊 人口结构堆叠图（常住+城区人口）</div>
+            <div id="stacked-bar" class="chart-box"></div>
+        </div>
+
+        <!-- 5. 雷达图：重点城市多维度综合评价 -->
+        <div class="card">
+            <div class="chart-title">🛸 核心城市综合能力雷达图（归一化指标）</div>
+            <div id="radar-chart" class="chart-box"></div>
+        </div>
+    </div>
+    <footer>💡 提示：鼠标悬浮图表可查看详细数值 | 图表自适应窗口 | 数据经清洗后转为JSON格式</footer>
+</div>
+
+<script>
+    // ---------- 模拟从 JSON 加载的数据（已清洗后结构化）----------
+    const cityData = {
+        cities: ["上海", "北京", "深圳", "重庆", "广州", "成都", "天津", "武汉", "西安", "南京", "杭州", "长沙", "青岛", "郑州", "苏州"],
+        population: [2487, 2184, 1766, 3212, 1881, 2126, 1386, 1377, 1299, 949, 1237, 1042, 1026, 1260, 1275],
+        urban_population: [2158, 1916, 1723, 1634, 1619, 1334, 1093, 1092, 928, 825, 874, 652, 601, 718, 585],
+        gdp: [44652, 41610, 34606, 29129, 30355, 20817, 16311, 18866, 11486, 17421, 20059, 14332, 14920, 13506, 23958],
+        urbanization_rate: [88.1, 86.6, 99.8, 70.3, 84.5, 79.8, 84.7, 84.0, 79.2, 86.9, 83.6, 79.4, 79.1, 78.4, 78.5]
+    };
+
+    // 1️⃣ 柱状图：常住人口
+    const barChart = echarts.init(document.getElementById('bar-chart'));
+    barChart.setOption({
+        title: { show: false },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>常住人口: {c} 万人' },
+        grid: { left: '8%', right: '5%', top: 10, bottom: 20, containLabel: true },
+        xAxis: { type: 'category', data: cityData.cities, axisLabel: { rotate: 35, fontWeight:500, interval:0 } },
+        yAxis: { type: 'value', name: '人口 (万人)', nameLocation: 'middle', nameGap: 45 },
+        series: [{
+            name: '常住人口', type: 'bar', data: cityData.population,
+            itemStyle: { borderRadius: [6,6,0,0], color: '#3b82f6', shadowColor: 'rgba(59,130,246,0.3)', shadowBlur: 8 },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 10 }
+        }]
+    });
+
+    // 2️⃣ 折线图（双Y轴）：GDP + 城镇化率
+    const lineChart = echarts.init(document.getElementById('line-chart'));
+    lineChart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        legend: { data: ['GDP (亿元)', '城镇化率 (%)'], left: 'left' },
+        xAxis: { type: 'category', data: cityData.cities, axisLabel: { rotate: 35 } },
+        yAxis: [{ type: 'value', name: 'GDP (亿元)', nameLocation: 'middle', nameGap: 50 },
+                 { type: 'value', name: '城镇化率 (%)', min: 60, max: 105, nameLocation: 'middle', nameGap: 45 }],
+        series: [
+            { name: 'GDP (亿元)', type: 'line', data: cityData.gdp, smooth: true, lineStyle: { width: 3, color: '#f97316' }, symbol: 'circle', symbolSize: 8, areaStyle: { opacity: 0.1 }, label: { show: true, position: 'top' } },
+            { name: '城镇化率 (%)', type: 'line', data: cityData.urbanization_rate, yAxisIndex: 1, smooth: true, lineStyle: { width: 3, color: '#10b981' }, symbol: 'diamond', symbolSize: 8, label: { show: true, formatter: '{c}%' } }
+        ]
+    });
+
+    // 3️⃣ 环形饼图：城区人口占比（显示前8城市，其他归为其他）
+    let pieData = cityData.cities.map((city, idx) => ({ name: city, value: cityData.urban_population[idx] }));
+    pieData.sort((a,b)=>b.value - a.value);
+    const top8 = pieData.slice(0,8);
+    const otherSum = pieData.slice(8).reduce((sum,item)=>sum+item.value,0);
+    if(otherSum>0) top8.push({ name:'其他城市', value: otherSum });
+    const pieChart = echarts.init(document.getElementById('pie-chart'));
+    pieChart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c}万人 ({d}%)' },
+        legend: { orient: 'vertical', left: 'left', type: 'scroll', pageIconColor: '#3b82f6' },
+        series: [{
+            name: '城区人口占比', type: 'pie', radius: ['45%', '70%'], avoidLabelOverlap: false,
+            label: { show: true, formatter: '{b}', position: 'outside' },
+            emphasis: { scale: true },
+            data: top8,
+            itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 }
+        }]
+    });
+
+    // 4️⃣ 堆叠柱状图：常住人口 + 城区人口 堆叠（展示人口构成）
+    const stackedChart = echarts.init(document.getElementById('stacked-bar'));
+    stackedChart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (params) => {
+            let res = params[0].axisValue + '<br/>';
+            let total = 0;
+            params.forEach(p => { res += `${p.marker} ${p.seriesName}: ${p.value}万人<br/>`; total += p.value; });
+            res += `📌 合计: ${total}万人`;
+            return res;
+        } },
+        legend: { data: ['常住人口', '城区人口'], left: 'left' },
+        xAxis: { type: 'category', data: cityData.cities, axisLabel: { rotate: 35 } },
+        yAxis: { type: 'value', name: '人口 (万人)' },
+        series: [
+            { name: '城区人口', type: 'bar', stack: 'total', data: cityData.urban_population, color: '#f59e0b', label: { show: true, position: 'inside' } },
+            { name: '常住人口', type: 'bar', stack: 'total', data: cityData.population.map((v,i)=> v - cityData.urban_population[i]), color: '#3b82f6', label: { show: true, position: 'inside', formatter: (p) => p.value > 50 ? `${p.value}万` : '' } }
+        ]
+    });
+
+    // 5️⃣ 雷达图：选取6个核心城市，多维指标归一化 (人口规模/最大,GDP/最大,城镇化率相对)
+    const radarCities = ["上海", "北京", "深圳", "广州", "成都", "杭州"];
+    const maxPop = Math.max(...cityData.population);
+    const maxGdp = Math.max(...cityData.gdp);
+    const indicators = [
+        { name: '人口规模', max: 1 }, { name: '经济总量(GDP)', max: 1 },
+        { name: '城镇化水平', max: 1 }, { name: '城区集聚度', max: 1 }
+    ];
+    function getRadarData(city) {
+        let idx = cityData.cities.indexOf(city);
+        if(idx===-1) return [0,0,0,0];
+        let popNorm = cityData.population[idx] / maxPop;
+        let gdpNorm = cityData.gdp[idx] / maxGdp;
+        let urbanNorm = cityData.urbanization_rate[idx] / 100;
+        let urbanPopNorm = cityData.urban_population[idx] / cityData.population[idx];  // 城区人口占常住比例
+        return [popNorm, gdpNorm, urbanNorm, urbanPopNorm];
+    }
+    const radarSeries = radarCities.map(city => ({
+        name: city, value: getRadarData(city), areaStyle: { opacity: 0.2 }
+    }));
+    const radarChart = echarts.init(document.getElementById('radar-chart'));
+    radarChart.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { data: radarCities, orient: 'vertical', left: 'left', itemWidth: 25, textStyle: { fontSize: 11 } },
+        radar: {
+            indicator: indicators,
+            center: ['50%', '50%'], radius: '65%',
+            shape: 'circle', name: { textStyle: { fontWeight: 'bold', fontSize: 11 } }
+        },
+        series: [{
+            type: 'radar', data: radarSeries,
+            symbolSize: 6, lineStyle: { width: 2 },
+            itemStyle: { borderRadius: 4 },
+            areaStyle: { opacity: 0.15 }
+        }]
+    });
+
+    // 窗口自适应
+    window.addEventListener('resize', () => {
+        barChart.resize(); lineChart.resize(); pieChart.resize(); stackedChart.resize(); radarChart.resize();
+    });
+</script>
+</body>
+</html>
