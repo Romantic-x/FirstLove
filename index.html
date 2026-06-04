@@ -265,10 +265,10 @@ async function load(year) {
     const search = document.getElementById('search').value;
     const province = document.getElementById('province').value;
 
-    const res = await fetch(`/api/data?year=${year}&search=${search}&province=${province}`);
+    // ✅ 已改成你真实的接口名字：city-data
+    const res = await fetch(`/api/city-data?year=${year}&search=${search}&province=${province}`);
     const d = await res.json();
 
-    // ✅ 这里是真正能画图的代码！！！
     bar.setOption({
         tooltip: { trigger: 'axis' },
         xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
