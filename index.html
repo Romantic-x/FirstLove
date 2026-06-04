@@ -264,45 +264,61 @@ async function load(year) {
 
     const search = document.getElementById('search').value;
     const province = document.getElementById('province').value;
-
-    // ✅ 已改成你真实的接口名字：city-data
+    //固定对接你的接口文件名 city-data
     const res = await fetch(`/api/city-data?year=${year}&search=${search}&province=${province}`);
     const d = await res.json();
 
+    //柱状
     bar.setOption({
         tooltip: { trigger: 'axis' },
         xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
-        yAxis: {},
         series: [{ name: '常住人口', type: 'bar', data: d.population }]
     });
-
+    //折线
     line.setOption({
         tooltip: { trigger: 'axis' },
         xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
-        yAxis: [{ type: 'value' }, { type: 'value' }],
+        yAxis: [{type:'value'},{type:'value'}],
         series: [
-            { name: 'GDP', type: 'line', yAxisIndex: 0, data: d.gdp },
-            { name: '城镇化率', type: 'line', yAxisIndex: 1, data: d.urbanization_rate }
+            { name: 'GDP', type: 'line', yAxisIndex:0, data: d.gdp },
+            { name: '城镇化率', type: 'line', yAxisIndex:1, data: d.urbanization_rate }
         ]
     });
-
+    //饼图
     pie.setOption({
-        tooltip: { trigger: 'item' },
-        series: [{
-            type: 'pie',
-            radius: ['40%', '70%'],
-            data: d.cities.map((name, i) => ({ name, value: d.urban_population[i] }))
-        }]
+        tooltip:{trigger:'item'},
+        series: [{type:'pie',radius:['40%','70%'],data:d.cities.map((n,i)=>({name:n,value:d.urban_population[i]}))}]
     });
-
+    //堆叠
     stack.setOption({
-        tooltip: { trigger: 'axis' },
-        xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
-        series: [
-            { name: '城区人口', type: 'bar', stack: 'all', data: d.urban_population },
-            { name: '其他人口', type: 'bar', stack: 'all', data: d.population.map((v, i) => v - d.urban_population[i]) }
+        tooltip:{trigger:'axis'},
+        xAxis:{data:d.cities,axisLabel:{rotate:30}},
+        series:[
+            {name:'城区人口',stack:'all',type:'bar',data:d.urban_population},
+            {name:'其他人口',stack:'all',type:'bar',data:d.population.map((v,i)=>v-d.urban_population[i])}
         ]
     });
+    //补齐雷达配置，之前缺失
+    radar.setOption({
+        tooltip:{trigger:'item'},
+        radar:{
+            indicator:[
+                {name:'常住人口',max:3500},
+                {name:'城区人口',max:2500},
+                {name:'GDP',max:50000},
+                {name:'城镇化率',max:100}
+            ]
+        },
+        series:[{
+            type:'radar',
+            data:d.cities.map((name,idx)=>{
+                return {
+                    name:name,
+                    value:[d.population[idx],d.urban_population[idx],d.gdp[idx],d.urbanization_rate[idx]]
+                }
+            })
+        }]
+    })
 }
 
 async function loadProvinces() {
