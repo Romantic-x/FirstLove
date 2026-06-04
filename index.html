@@ -110,7 +110,7 @@
 
     <div class="grid">
         <div class="card">
-            <div class="chart-title">📊 城市常住人口对比（柱状图）</div>
+            <div class="chart-title">📊 城市总人口对比（柱状图）</div>
             <div id="bar-chart" class="chart-box"></div>
         </div>
         <div class="card">
@@ -164,7 +164,7 @@ function renderAll(cityData) {
     xAxis: { type: 'category', data: cityData.cities, axisLabel: { rotate: 35, fontWeight:500, interval:0 } },
     yAxis: { type: 'value', name: '人口 (万人)', nameLocation: 'middle', nameGap: 45 },
     series: [{
-      name: '常住人口', type: 'bar', data: cityData.population,
+      name: '总人口', type: 'bar', data: cityData.population,
       itemStyle: { borderRadius: [6,6,0,0], color: '#3b82f6', shadowColor: 'rgba(59,130,246,0.3)', shadowBlur: 8 },
       label: { show: true, position: 'top', formatter: '{c}万', fontSize: 10 }
     }]
