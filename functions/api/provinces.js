@@ -1,4 +1,21 @@
-export async function onRequestGet({env}){
-  const {results} = await env.D1.prepare("SELECT DISTINCT province FROM city_data").all();
-  return Response.json(results.map(i=>i.province));
+export async function onRequest(context) {
+    const { request, env } = context;
+    
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
+    };
+    
+    if (request.method === 'OPTIONS') {
+        return new Response(null, { headers });
+    }
+    
+    try {
+        const { results } = await env.DB.prepare('SELECT DISTINCT province FROM economic_data ORDER BY province').all();
+        
+        return new Response(JSON.stringify({ success: true, data: results.map(r => r.province) }), { headers });
+    } catch (error) {
+        return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500, headers });
+    }
 }
