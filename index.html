@@ -155,9 +155,22 @@
         yAxis: [{ type: 'value', name: 'GDP (亿元)', nameLocation: 'middle', nameGap: 50 },
                  { type: 'value', name: '城镇化率 (%)', min: 60, max: 105, nameLocation: 'middle', nameGap: 45 }],
         series: [
-            { name: 'GDP (亿元)', type: 'scatter', data: cityData.gdp, smooth: true, lineStyle: { width: 3, color: '#f97316' }, symbol: 'circle', symbolSize: 8, areaStyle: { opacity: 0.1 }, label: { show: true, position: 'top' } },
-            { name: '城镇化率 (%)', type: 'scatter', data: cityData.urbanization_rate, yAxisIndex: 1, smooth: true, lineStyle: { width: 3, color: '#10b981' }, symbol: 'diamond', symbolSize: 8, label: { show: true, formatter: '{c}%' } }
-        ]
+    { 
+        name: 'GDP (亿元)', 
+        type: 'scatter',           // 改为 scatter
+        data: cityData.gdp.map((v, i) => [i, v]),  // 需要转换数据格式
+        symbolSize: 12,            // 点的大小
+        itemStyle: { color: '#f97316' }
+    },
+    { 
+        name: '城镇化率 (%)', 
+        type: 'scatter',
+        data: cityData.urbanization_rate.map((v, i) => [i, v]),
+        yAxisIndex: 1,
+        symbolSize: 12,
+        itemStyle: { color: '#10b981' }
+    }
+]
     });
 
     // 3️⃣ 环形饼图：城区人口占比（显示前8城市，其他归为其他）
