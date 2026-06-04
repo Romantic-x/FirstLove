@@ -6,141 +6,22 @@
     <title>全国城市人口数据可视化分析</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: linear-gradient(145deg, #f5f7fc 0%, #eef2f7 100%);
-            font-family: 'Segoe UI', 'Roboto', 'Microsoft YaHei', sans-serif;
-            padding: 30px 20px;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            color: #1f2d3d;
-            font-weight: 600;
-            font-size: 2.2rem;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #5a6874;
-            margin-bottom: 20px;
-        }
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .year-btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 10px;
-            background: #3b82f6;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .year-btn:hover {
-            background: #2563eb;
-        }
-        .year-btn.active {
-            background: #1d4ed8;
-            font-weight: bold;
-        }
-        .search-box, .province-box {
-            padding: 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 14px;
-            width: 180px;
-        }
-        .admin-btn {
-            padding: 10px 14px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
-            gap: 30px;
-        }
-        .card {
-            background: rgba(255,255,255,0.92);
-            border-radius: 24px;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        .chart-title {
-            background: #ffffffcc;
-            padding: 16px 24px;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1e466e;
-            border-left: 5px solid #3b82f6;
-            border-bottom: 1px solid #e4edf5;
-        }
-        .chart-box {
-            width: 100%;
-            height: 400px;
-            padding: 12px;
-        }
-        footer {
-            text-align: center;
-            margin-top: 45px;
-            color: #6c7a89;
-            font-size: 0.85rem;
-            border-top: 1px solid #cbdde9;
-            padding-top: 25px;
-        }
-        .modal {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;
-            z-index:9999; display:none;
-        }
-        .modal-content {
-            background:white; padding:24px; border-radius:16px; width:90%; max-width:500px;
-        }
-        .modal-content input, .modal-content select {
-            width:100%; padding:10px; margin:6px 0; border-radius:8px; border:1px solid #ddd;
-        }
-        .modal-btns {
-            display:flex; gap:10px; margin-top:12px;
-        }
-        .modal-btns button {
-            flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer;
-        }
-        .btn-primary {
-            background:#3b82f6; color:white;
-        }
-        .btn-danger {
-            background:#ef4444; color:white;
-        }
-        table {
-            width:100%; border-collapse:collapse; margin-top:12px;
-        }
-        table th, table td {
-            border:1px solid #ddd; padding:8px; text-align:center;
-        }
-        @media (max-width: 640px) {
-            .grid { grid-template-columns: 1fr; }
-            .chart-box { height: 320px; }
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background: linear-gradient(145deg, #f5f7fc 0%, #eef2f7 100%); font-family: 'Segoe UI', sans-serif; padding:30px 20px; }
+        .container { max-width:1400px; margin:0 auto; }
+        h1 { text-align:center; color:#1f2d3d; font-size:2.2rem; margin-bottom:8px; }
+        .subtitle { text-align:center; color:#5a6874; margin-bottom:20px; }
+        .toolbar { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:24px; }
+        .year-btn { padding:10px 16px; border:none; border-radius:10px; background:#3b82f6; color:white; cursor:pointer; }
+        .year-btn.active { background:#1d4ed8; }
+        .search-box, .province-box { padding:10px 14px; border:1px solid #ddd; border-radius:10px; width:180px; }
+        .admin-btn { padding:10px 14px; background:#ef4444; color:white; border:none; border-radius:10px; cursor:pointer; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(550px,1fr)); gap:30px; }
+        .card { background:white; border-radius:24px; box-shadow:0 20px 35px -12px rgba(0,0,0,0.12); overflow:hidden; }
+        .chart-title { padding:16px 24px; font-size:1.25rem; font-weight:600; color:#1e466e; border-left:5px solid #3b82f6; background:#f9fbfd; }
+        .chart-box { width:100%; height:400px; padding:12px; }
+        footer { text-align:center; margin-top:45px; color:#6c7a89; }
+        .modal { display:none; }
     </style>
 </head>
 <body>
@@ -150,100 +31,29 @@
     <div class="subtitle">数据来源：各市统计公报 | 可视化引擎：ECharts</div>
 
     <div class="toolbar">
-        <button class="year-btn" onclick="load(2023)">2023</button>
-        <button class="year-btn" onclick="load(2024)">2024</button>
-        <button class="year-btn" onclick="load(2025)">2025</button>
-        <button class="year-btn active" onclick="load(2026)">2026</button>
+        <button class="year-btn" onclick="load(2023, event)">2023</button>
+        <button class="year-btn" onclick="load(2024, event)">2024</button>
+        <button class="year-btn" onclick="load(2025, event)">2025</button>
+        <button class="year-btn active" onclick="load(2026, event)">2026</button>
 
         <input type="text" class="search-box" placeholder="🔍 搜索城市" id="search">
         <select class="province-box" id="province">
             <option value="">全部省份</option>
         </select>
-
-        <button class="admin-btn" onclick="showLogin()">后台管理</button>
     </div>
 
     <div class="grid">
-        <div class="card">
-            <div class="chart-title">📊 城市常住人口对比</div>
-            <div id="bar" class="chart-box"></div>
-        </div>
-        <div class="card">
-            <div class="chart-title">📈 GDP与城镇化率</div>
-            <div id="line" class="chart-box"></div>
-        </div>
-        <div class="card">
-            <div class="chart-title">🥧 城区人口占比</div>
-            <div id="pie" class="chart-box"></div>
-        </div>
-        <div class="card">
-            <div class="chart-title">📊 人口结构堆叠</div>
-            <div id="stack" class="chart-box"></div>
-        </div>
-        <div class="card">
-            <div class="chart-title">🛸 综合能力雷达</div>
-            <div id="radar" class="chart-box"></div>
-        </div>
-    </div>
-
-    <footer>💡 提示：年份切换、搜索城市、筛选省份 | 鼠标悬浮查看详情</footer>
-</div>
-
-<!-- 登录弹窗 -->
-<div class="modal" id="loginModal">
-    <div class="modal-content">
-        <h3>管理员登录</h3>
-        <input id="user" placeholder="账号">
-        <input id="pwd" type="password" placeholder="密码">
-        <div class="modal-btns">
-            <button onclick="login()">登录</button>
-            <button onclick="closeModal()">关闭</button>
-        </div>
-    </div>
-</div>
-
-<!-- 后台弹窗 -->
-<div class="modal" id="adminModal">
-    <div class="modal-content" style="max-width:900px; height:80vh; overflow:auto;">
-        <h3>数据管理</h3>
-        <div style="display:flex; gap:8px; margin-bottom:10px;">
-            <button class="btn-primary" onclick="add()">新增</button>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>年份</th><th>省份</th><th>城市</th><th>常住人口</th><th>城区人口</th><th>GDP</th><th>城镇化率</th><th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="adminTable"></tbody>
-        </table>
-        <button onclick="closeModal()" style="margin-top:12px;">关闭</button>
-    </div>
-</div>
-
-<!-- 编辑弹窗 -->
-<div class="modal" id="editModal">
-    <div class="modal-content">
-        <h3 id="editTitle">编辑数据</h3>
-        <input id="editId" type="hidden">
-        <input id="editYear" placeholder="年份">
-        <input id="editProvince" placeholder="省份">
-        <input id="editCity" placeholder="城市">
-        <input id="editPop" placeholder="常住人口">
-        <input id="editUrban" placeholder="城区人口">
-        <input id="editGdp" placeholder="GDP">
-        <input id="editRate" placeholder="城镇化率">
-        <div class="modal-btns">
-            <button class="btn-primary" onclick="saveEdit()">保存</button>
-            <button class="btn-danger" onclick="delEdit()">删除</button>
-        </div>
+        <div class="card"><div class="chart-title">📊 城市常住人口对比</div><div id="bar" class="chart-box"></div></div>
+        <div class="card"><div class="chart-title">📈 GDP与城镇化率</div><div id="line" class="chart-box"></div></div>
+        <div class="card"><div class="chart-title">🥧 城区人口占比</div><div id="pie" class="chart-box"></div></div>
+        <div class="card"><div class="chart-title">📊 人口结构堆叠</div><div id="stack" class="chart-box"></div></div>
+        <div class="card"><div class="chart-title">🛸 综合能力雷达</div><div id="radar" class="chart-box"></div></div>
     </div>
 </div>
 
 <script>
 let bar, line, pie, stack, radar;
 let yearNow = 2026;
-let isAdmin = false;
 
 init();
 loadProvinces();
@@ -257,110 +67,94 @@ function init() {
     radar = echarts.init(document.getElementById('radar'));
 }
 
-async function load(year) {
+async function load(year, event) {
     yearNow = year;
     document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
     if (event) event.target.classList.add('active');
 
     const search = document.getElementById('search').value;
     const province = document.getElementById('province').value;
-    //固定对接你的接口文件名 city-data
-    const res = await fetch(`/api/city-data?year=${year}&search=${search}&province=${province}`);
-    const d = await res.json();
 
-    //柱状
-    bar.setOption({
-        tooltip: { trigger: 'axis' },
-        xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
-        series: [{ name: '常住人口', type: 'bar', data: d.population }]
-    });
-    //折线
-    line.setOption({
-        tooltip: { trigger: 'axis' },
-        xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
-        yAxis: [{type:'value'},{type:'value'}],
-        series: [
-            { name: 'GDP', type: 'line', yAxisIndex:0, data: d.gdp },
-            { name: '城镇化率', type: 'line', yAxisIndex:1, data: d.urbanization_rate }
-        ]
-    });
-    //饼图
-    pie.setOption({
-        tooltip:{trigger:'item'},
-        series: [{type:'pie',radius:['40%','70%'],data:d.cities.map((n,i)=>({name:n,value:d.urban_population[i]}))}]
-    });
-    //堆叠
-    stack.setOption({
-        tooltip:{trigger:'axis'},
-        xAxis:{data:d.cities,axisLabel:{rotate:30}},
-        series:[
-            {name:'城区人口',stack:'all',type:'bar',data:d.urban_population},
-            {name:'其他人口',stack:'all',type:'bar',data:d.population.map((v,i)=>v-d.urban_population[i])}
-        ]
-    });
-    //补齐雷达配置，之前缺失
-    radar.setOption({
-        tooltip:{trigger:'item'},
-        radar:{
-            indicator:[
-                {name:'常住人口',max:3500},
-                {name:'城区人口',max:2500},
-                {name:'GDP',max:50000},
-                {name:'城镇化率',max:100}
+    try {
+        const res = await fetch(`/api/city-data?year=${year}&search=${search}&province=${province}`);
+        const d = await res.json();
+
+        if (!d || !d.cities || d.cities.length === 0) {
+            [bar, line, pie, stack, radar].forEach(c => c.clear());
+            return;
+        }
+
+        bar.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { data: d.cities },
+            series: [{ type: 'bar', data: d.population }]
+        });
+
+        line.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { data: d.cities },
+            series: [
+                { name: 'GDP', data: d.gdp },
+                { name: '城镇化率', data: d.urbanization_rate }
             ]
-        },
-        series:[{
-            type:'radar',
-            data:d.cities.map((name,idx)=>{
-                return {
-                    name:name,
-                    value:[d.population[idx],d.urban_population[idx],d.gdp[idx],d.urbanization_rate[idx]]
-                }
-            })
-        }]
-    })
+        });
+
+        pie.setOption({
+            series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                data: d.cities.map((n, i) => ({ name: n, value: d.urban_population[i] }))
+            }]
+        });
+
+        stack.setOption({
+            xAxis: { data: d.cities },
+            series: [
+                { name: '城区人口', stack: 'all', data: d.urban_population },
+                { name: '其他', stack: 'all', data: d.population.map((v, i) => v - d.urban_population[i]) }
+            ]
+        });
+
+        radar.setOption({
+            radar: {
+                indicator: [
+                    { name: '人口', max: 3500 },
+                    { name: '城区', max: 2500 },
+                    { name: 'GDP', max: 50000 },
+                    { name: '城镇化', max: 100 }
+                ]
+            },
+            series: [{
+                type: 'radar',
+                data: d.cities.map((n, i) => ({
+                    name: n,
+                    value: [d.population[i], d.urban_population[i], d.gdp[i], d.urbanization_rate[i]]
+                }))
+            }]
+        });
+
+    } catch (err) {
+        console.error(err);
+        [bar, line, pie, stack, radar].forEach(c => c.clear());
+    }
 }
 
 async function loadProvinces() {
-    const res = await fetch('/api/provinces');
-    const list = await res.json();
-    const sel = document.getElementById('province');
-    list.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p;
-        opt.innerText = p;
-        sel.appendChild(opt);
-    });
+    try {
+        const res = await fetch('/api/provinces');
+        const list = await res.json();
+        const sel = document.getElementById('province');
+        list.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.innerText = p;
+            sel.appendChild(opt);
+        });
+    } catch (e) {}
 }
 
 document.getElementById('search').oninput = () => load(yearNow);
 document.getElementById('province').onchange = () => load(yearNow);
-
-function showLogin() {
-    document.getElementById('loginModal').style.display = 'flex';
-}
-
-async function login() {
-    const user = document.getElementById('user').value;
-    const pwd = document.getElementById('pwd').value;
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user, pwd })
-    });
-    const j = await res.json();
-    if (j.ok) {
-        isAdmin = true;
-        closeModal();
-        alert('登录成功');
-    } else {
-        alert('账号密码错误');
-    }
-}
-
-function closeModal() {
-    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-}
 
 window.addEventListener('resize', () => {
     bar.resize();
