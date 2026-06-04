@@ -260,7 +260,7 @@ function init() {
 async function load(year) {
     yearNow = year;
     document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-    event?.target?.classList.add('active');
+    if (event) event.target.classList.add('active');
 
     const search = document.getElementById('search').value;
     const province = document.getElementById('province').value;
@@ -268,26 +268,39 @@ async function load(year) {
     const res = await fetch(`/api/data?year=${year}&search=${search}&province=${province}`);
     const d = await res.json();
 
-    renderAll(d);
-}
-
-function renderAll(d) {
+    // ✅ 这里是真正能画图的代码！！！
     bar.setOption({
-        xAxis:{data:d.cities},
-        series:[{data:d.population}]
+        tooltip: { trigger: 'axis' },
+        xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
+        yAxis: {},
+        series: [{ name: '常住人口', type: 'bar', data: d.population }]
     });
+
     line.setOption({
-        xAxis:{data:d.cities},
-        series:[{data:d.gdp},{data:d.urbanization_rate}]
+        tooltip: { trigger: 'axis' },
+        xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
+        yAxis: [{ type: 'value' }, { type: 'value' }],
+        series: [
+            { name: 'GDP', type: 'line', yAxisIndex: 0, data: d.gdp },
+            { name: '城镇化率', type: 'line', yAxisIndex: 1, data: d.urbanization_rate }
+        ]
     });
+
     pie.setOption({
-        series:[{data:d.cities.map((c,i)=>({name:c,value:d.urban_population[i]}))}]
+        tooltip: { trigger: 'item' },
+        series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: d.cities.map((name, i) => ({ name, value: d.urban_population[i] }))
+        }]
     });
+
     stack.setOption({
-        xAxis:{data:d.cities},
-        series:[
-            {data:d.urban_population},
-            {data:d.population.map((v,i)=>v-d.urban_population[i])}
+        tooltip: { trigger: 'axis' },
+        xAxis: { data: d.cities, axisLabel: { rotate: 30 } },
+        series: [
+            { name: '城区人口', type: 'bar', stack: 'all', data: d.urban_population },
+            { name: '其他人口', type: 'bar', stack: 'all', data: d.population.map((v, i) => v - d.urban_population[i]) }
         ]
     });
 }
@@ -315,92 +328,30 @@ async function login() {
     const user = document.getElementById('user').value;
     const pwd = document.getElementById('pwd').value;
     const res = await fetch('/api/login', {
-        method:'POST',
-        body:JSON.stringify({user,pwd})
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user, pwd })
     });
     const j = await res.json();
-    if(j.ok) {
+    if (j.ok) {
         isAdmin = true;
         closeModal();
-        showAdmin();
-    } else alert('账号密码错误');
-}
-
-async function showAdmin() {
-    const res = await fetch(`/api/data?year=${yearNow}`);
-    const d = await res.json();
-    const tb = document.getElementById('adminTable');
-    tb.innerHTML = '';
-    d.cities.forEach((city,i)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-        <td>${yearNow}</td>
-        <td>${d.provinces[i]}</td>
-        <td>${city}</td>
-        <td>${d.population[i]}</td>
-        <td>${d.urban_population[i]}</td>
-        <td>${d.gdp[i]}</td>
-        <td>${d.urbanization_rate[i]}</td>
-        <td><button onclick="edit(${i})">编辑</button></td>
-        `;
-        tb.appendChild(tr);
-    });
-    document.getElementById('adminModal').style.display = 'flex';
+        alert('登录成功');
+    } else {
+        alert('账号密码错误');
+    }
 }
 
 function closeModal() {
-    document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
 }
 
-function add() {
-    document.getElementById('editTitle').innerText = '新增';
-    document.getElementById('editId').value = '';
-    document.getElementById('editYear').value = yearNow;
-    document.getElementById('editProvince').value = '';
-    document.getElementById('editCity').value = '';
-    document.getElementById('editPop').value = '';
-    document.getElementById('editUrban').value = '';
-    document.getElementById('editGdp').value = '';
-    document.getElementById('editRate').value = '';
-    document.getElementById('editModal').style.display = 'flex';
-}
-
-async function saveEdit() {
-    const id = document.getElementById('editId').value;
-    const year = document.getElementById('editYear').value;
-    const province = document.getElementById('editProvince').value;
-    const city = document.getElementById('editCity').value;
-    const pop = document.getElementById('editPop').value;
-    const urban = document.getElementById('editUrban').value;
-    const gdp = document.getElementById('editGdp').value;
-    const rate = document.getElementById('editRate').value;
-
-    await fetch('/api/admin', {
-        method:'POST',
-        body:JSON.stringify({
-            action: id ? 'edit' : 'add',
-            id, year, province, city,
-            population:pop, urban_population:urban, gdp, urbanization_rate:rate
-        })
-    });
-    closeModal();
-    showAdmin();
-    load(yearNow);
-}
-
-async function delEdit() {
-    const id = document.getElementById('editId').value;
-    await fetch('/api/admin', {
-        method:'POST',
-        body:JSON.stringify({action:'del',id})
-    });
-    closeModal();
-    showAdmin();
-    load(yearNow);
-}
-
-window.addEventListener('resize', ()=>{
-    bar.resize(); line.resize(); pie.resize(); stack.resize(); radar.resize();
+window.addEventListener('resize', () => {
+    bar.resize();
+    line.resize();
+    pie.resize();
+    stack.resize();
+    radar.resize();
 });
 </script>
 </body>
