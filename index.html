@@ -159,7 +159,7 @@ async function loadYear(year) {
 function renderAll(cityData) {
   //1柱状图
   barChart.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>常住人口: {c} 万人' },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>总人口: {c} 万人' },
     grid: { left: '8%', right: '5%', top: 10, bottom: 20, containLabel: true },
     xAxis: { type: 'category', data: cityData.cities, axisLabel: { rotate: 35, fontWeight:500, interval:0 } },
     yAxis: { type: 'value', name: '人口 (万人)', nameLocation: 'middle', nameGap: 45 },
