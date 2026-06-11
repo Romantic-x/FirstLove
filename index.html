@@ -184,7 +184,7 @@ function renderAll(cityData) {
             symbol: 'circle', 
             symbolSize: 10, 
             itemStyle: { color: '#f97316' },
-            label: { show: true, position: 'top', formatter: '{c}'},
+            label: { show: true, position: 'top', formatter: '{c}'}},
         {name: '城镇化率 (%)', 
             type: 'scatter',  // 改为 scatter
             data: cityData.urbanization_rate, 
@@ -192,7 +192,7 @@ function renderAll(cityData) {
             symbol: 'diamond', 
             symbolSize: 10, 
             itemStyle: { color: '#10b981' },
-            label: { show: true, formatter: '{c}%'}
+            label: { show: true, formatter: '{c}%'}}
     ]
   })
 
